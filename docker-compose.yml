@@ -1,0 +1,15 @@
+version: '2'
+services:
+    moodic-server:
+        container_name: moodic-server
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        image: moodic-server:latest
+        ports:
+            - 8080:8080
+        networks:
+            - spring-cloud-network
+networks:
+    spring-cloud-network:
+        driver: bridge

@@ -21,7 +21,7 @@ public class OpenWeatherAPI implements WeatherAPI {
     public String getWeatherByCity(String city) {
         final String URI_ENDPOINT = String.format("%s?appid=%s&q=%s", ENDPOINT, APP_ID, city);
         String responseBody = this.getResponseBody(URI_ENDPOINT);
-        return this.getCelsiusTemp(responseBody) + "C";
+        return this.getCelsiusTemp(responseBody) + "C\n";
     }
 
     private String getResponseBody(String endpoint) {
