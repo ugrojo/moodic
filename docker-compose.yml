@@ -1,6 +1,8 @@
 version: '2'
 services:
     moodic-server:
+        depends_on:
+            - mongodb
         container_name: moodic-server
         build:
             context: ./
@@ -10,6 +12,16 @@ services:
             - 8080:8080
         networks:
             - spring-cloud-network
+    mongodb:
+        image: mongo:6-jammy
+        ports:
+            - '27017:27017'
+        volumes:
+            - dbdata6:/data/db
+        networks:
+            - spring-cloud-network
+volumes:
+    dbdata6:
 networks:
     spring-cloud-network:
         driver: bridge

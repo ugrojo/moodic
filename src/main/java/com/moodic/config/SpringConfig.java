@@ -1,7 +1,9 @@
 package com.moodic.config;
 
+import com.moodic.moodic.MoodicControlPlane;
 import com.moodic.music.MusicAPI;
 import com.moodic.music.SpotifyMusicAPI;
+import com.moodic.utils.SimpleCache;
 import com.moodic.weather.OpenWeatherAPI;
 import com.moodic.weather.WeatherAPI;
 import org.springframework.context.annotation.Bean;
@@ -19,5 +21,10 @@ public class SpringConfig {
     public MusicAPI musicAPI() {
 
         return new SpotifyMusicAPI();
+    }
+
+    @Bean
+    public MoodicControlPlane moodicControlPlane() {
+        return new MoodicControlPlane();
     }
 }

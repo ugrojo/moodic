@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+// TODO: Add cache for one hour?
 public class OpenWeatherAPI implements WeatherAPI {
 
     private static final String ENDPOINT = "http://api.openweathermap.org/data/2.5/weather";
@@ -17,35 +18,28 @@ public class OpenWeatherAPI implements WeatherAPI {
 
     private static final double KELVIN_TO_CELSIUS = -273.15;
 
+
     @Override
     public String getWeatherByCity(String city) {
         final String URI_ENDPOINT = String.format("%s?appid=%s&q=%s", ENDPOINT, APP_ID, city);
-        String responseBody = this.getResponseBody(URI_ENDPOINT);
-        return this.getCelsiusTemp(responseBody) + "C\n";
+        return this.getWeather(URI_ENDPOINT);
     }
 
-    private String getResponseBody(String endpoint) {
+    // TODO: decouple a bit more?
+    private String getWeather(String endpoint) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
+                .headers("Accept", "application/json")
                 .build();
-        HttpResponse<String> response;
         try {
-            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
-        } catch (IOException | InterruptedException e) {
-            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
-        }
-    }
-
-    private String getCelsiusTemp(String jsonResponse) {
-        try {
-            JSONObject jsonObject = new JSONObject(jsonResponse);
-            String kelvinTemp = jsonObject.getJSONObject("main").get("temp").toString();
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+            String kelvinTemp = new JSONObject(response.body()).getJSONObject("main").get("temp").toString();
             double celsiusTemp = Double.parseDouble(kelvinTemp) + KELVIN_TO_CELSIUS;
-            return String.valueOf(celsiusTemp);
-        } catch (JSONException err){
-            return err.toString();
+            return String.format("%.2f", celsiusTemp);
+        } catch (IOException | InterruptedException | JSONException e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
         }
     }
 

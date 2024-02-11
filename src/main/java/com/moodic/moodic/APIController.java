@@ -1,35 +1,25 @@
 package com.moodic.moodic;
 
-import com.moodic.music.MusicAPI;
-import com.moodic.weather.WeatherAPI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@ResponseStatus(HttpStatus.OK)
 public class APIController {
 
     @Autowired
-    WeatherAPI weatherAPI;
+    MoodicControlPlane controlPlane;
 
-    @Autowired
-    MusicAPI musicAPI;
-
-    @GetMapping("/")
-    public String index() {
-        return "Moodic Service API!\n";
-    }
-
-    // TODO: Remove this temporary testing endpoint
-    @GetMapping("/api/v1/weather")
-    public String getWeather(@RequestParam(value="city", defaultValue = "Zapopan") String city) {
-        return weatherAPI.getWeatherByCity(city);
-    }
-
-    // TODO: This endpoint will change to receive city instead of genre. This is for temporary testing.
+    // TODO: is it a good idea to have a default city or should an error be thrown?
     @GetMapping("/api/v1/songs")
-    public String[] getSongs(@RequestParam(value="genre", defaultValue = "Rock") String genre) {
-        return musicAPI.getSongsByGenre(genre);
+    public ResponseEntity<String[]> getSongs(@RequestParam(value="city", defaultValue = "zapopan") String city) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(controlPlane.getSongsForCityWeather(city));
     }
 }
