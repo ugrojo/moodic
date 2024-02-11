@@ -30,7 +30,6 @@ public class MoodicControlPlane {
 
     public String[] getSongsForCityWeather(String city) {
         double weather = Double.parseDouble(weatherAPI.getWeatherByCity(city));
-        System.out.println(weather);
         String moodGenre;
         if (weather > 30.0) {
             moodGenre = Mood.SUMMER.genre();
@@ -44,7 +43,6 @@ public class MoodicControlPlane {
         else {
             moodGenre = Mood.WINTER.genre();
         }
-        System.out.println(moodGenre);
         return musicAPI.getSongsByGenre(moodGenre);
     }
 }

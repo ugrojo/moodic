@@ -15,7 +15,6 @@ public class APIController {
     @Autowired
     MoodicControlPlane controlPlane;
 
-    // TODO: is it a good idea to have a default city or should an error be thrown?
     @GetMapping("/api/v1/songs")
     public ResponseEntity<String[]> getSongs(@RequestParam(value="city", defaultValue = "zapopan") String city) {
         return ResponseEntity

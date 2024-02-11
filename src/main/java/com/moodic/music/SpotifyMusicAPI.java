@@ -23,12 +23,10 @@ public class SpotifyMusicAPI implements MusicAPI {
 
     private static final SimpleCache simpleCache = new SimpleCache();
 
-    // TODO: Return list of Tracks?
     @Override
     public String[] getSongsByGenre(String genre) {
         final String URI_ENDPOINT = String.format("%s?seed_genres=%s", RECOMMENDATIONS_ENDPOINT, genre.toLowerCase());
         String accessToken = this.getAccessToken();
-        System.out.println(accessToken);
         return this.getRecommendationsByGenre(accessToken, URI_ENDPOINT);
     }
 
