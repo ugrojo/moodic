@@ -5,6 +5,7 @@ import com.moodic.moodic.MoodicControlPlane;
 import com.moodic.music.MusicAPI;
 import com.moodic.music.SpotifyMusicAPI;
 import com.moodic.weather.OpenWeatherAPI;
+import com.moodic.weather.OpenWeatherAPIClient;
 import com.moodic.weather.WeatherAPI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,4 +53,10 @@ public class SpringConfig {
     public MoodicRequestRepository getMoodicRequestRepository() {
         return new MoodicRequestRepository();
     }
+
+    @Bean
+    public OpenWeatherAPIClient getOpenWeatherAPIClient() {
+        return new OpenWeatherAPIClient();
+    }
+
 }

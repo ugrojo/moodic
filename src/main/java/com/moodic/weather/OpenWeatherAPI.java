@@ -2,6 +2,7 @@ package com.moodic.weather;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import software.amazon.awssdk.services.dynamodb.endpoints.internal.Value;
 
@@ -14,6 +15,9 @@ import java.net.http.HttpResponse;
 // TODO: Add cache for one hour?
 public class OpenWeatherAPI implements WeatherAPI {
 
+    @Autowired
+    OpenWeatherAPIClient openWeatherAPIClient;
+
     private static final String ENDPOINT = "http://api.openweathermap.org/data/2.5/weather";
     private static final String APP_ID = "7da5b758b2f9176fa6aedf47f21b1a03";
 
@@ -23,21 +27,8 @@ public class OpenWeatherAPI implements WeatherAPI {
     @Override
     public String getWeatherByCity(String city) {
         final String URI_ENDPOINT = String.format("%s?appid=%s&q=%s", ENDPOINT, APP_ID, city);
-        String responseBody = this.getWeatherResponseBody(URI_ENDPOINT);
+        String responseBody = openWeatherAPIClient.getWeatherResponseBody(URI_ENDPOINT);
         return this.getWeather(responseBody);
-    }
-
-    private String getWeatherResponseBody(String endpoint) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(endpoint))
-                .method("GET", HttpRequest.BodyPublishers.noBody())
-                .headers("Accept", "application/json")
-                .build();
-        try {
-            return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
-        } catch (IOException | InterruptedException e) {
-            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
-        }
     }
 
     private String getWeather(String responseBody) {
