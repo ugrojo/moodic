@@ -1,0 +1,20 @@
+version: '2'
+services:
+    moodic-server:
+        container_name: moodic-server
+        restart: on-failure
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        environment:
+            - AWS_ACCESS_KEY_ID={$AWS_ACCESS_KEY_ID}
+            - AWS_SECRET_ACCESS_KEY={$AWS_SECRET_ACCESS_KEY}
+            - AWS_DEFAULT_REGION={$AWS_DEFAULT_REGION}
+        image: moodic-server:latest
+        ports:
+            - 8080:8080
+        networks:
+            - spring-cloud-network
+networks:
+    spring-cloud-network:
+        driver: bridge
