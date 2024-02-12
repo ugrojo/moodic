@@ -26,14 +26,18 @@ public class SpotifyMusicAPI implements MusicAPI {
     @Override
     public String[] getSongsByGenre(String genre) {
         final String URI_ENDPOINT = String.format("%s?seed_genres=%s", RECOMMENDATIONS_ENDPOINT, genre.toLowerCase());
-        String accessToken = this.getAccessToken();
-        return this.getRecommendationsByGenre(accessToken, URI_ENDPOINT);
+        String accessToken;
+        if (simpleCache.isCacheStale()) {
+            String accessTokenResponse = this.getAccessTokenResponse();
+            accessToken = this.getAccessToken(accessTokenResponse);
+        } else {
+            accessToken = simpleCache.getToken();
+        }
+        String songRecommendationsResponse = this.getRecommendationsByGenreResponse(accessToken, URI_ENDPOINT);
+        return this.getRecommendationsByGenre(songRecommendationsResponse);
     }
 
-    private String getAccessToken() {
-        if (!simpleCache.isCacheStale()) {
-            return simpleCache.getToken();
-        }
+    private String getAccessTokenResponse() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(ACCESS_TOKEN_ENDPOINT))
                 .method("POST", HttpRequest.BodyPublishers.ofString(
@@ -41,18 +45,24 @@ public class SpotifyMusicAPI implements MusicAPI {
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
         try {
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-            String accessToken = new JSONObject(response.body()).get("access_token").toString();
+            return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
+        } catch (IOException | InterruptedException e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
+        }
+    }
+
+    private String getAccessToken(String accessTokenResponse) {
+        try {
+            String accessToken = new JSONObject(accessTokenResponse).get("access_token").toString();
             simpleCache.updateCache(accessToken);
             return simpleCache.getToken();
-        } catch (IOException | JSONException | InterruptedException e) {
+        } catch (JSONException e) {
             // TODO: Find a way to return the actual http status in a response or something
             return HttpStatus.INTERNAL_SERVER_ERROR.toString();
         }
     }
 
-    private String[] getRecommendationsByGenre(String accessToken, String endpoint) {
+    private String getRecommendationsByGenreResponse(String accessToken, String endpoint) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -60,15 +70,21 @@ public class SpotifyMusicAPI implements MusicAPI {
                 .headers("Accept", "application/json")
                 .build();
         try {
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-            JSONArray tracks = new JSONObject(response.body()).getJSONArray("tracks");
+            return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
+        } catch (IOException | InterruptedException e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
+        }
+    }
+
+    private String[] getRecommendationsByGenre(String songRecommendationsResponse) {
+        try {
+            JSONArray tracks = new JSONObject(songRecommendationsResponse).getJSONArray("tracks");
             String[] trackList = new String[tracks.length()];
             for (int i = 0; i < tracks.length(); i++) {
                 trackList[i] = tracks.getJSONObject(i).get("name").toString();
             }
             return trackList;
-        } catch (IOException | InterruptedException | JSONException e) {
+        } catch (JSONException e) {
             return new String[]{HttpStatus.INTERNAL_SERVER_ERROR.toString()};
         }
     }

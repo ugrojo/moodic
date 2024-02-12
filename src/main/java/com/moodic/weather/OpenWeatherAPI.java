@@ -3,6 +3,7 @@ package com.moodic.weather;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import software.amazon.awssdk.services.dynamodb.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,23 +23,29 @@ public class OpenWeatherAPI implements WeatherAPI {
     @Override
     public String getWeatherByCity(String city) {
         final String URI_ENDPOINT = String.format("%s?appid=%s&q=%s", ENDPOINT, APP_ID, city);
-        return this.getWeather(URI_ENDPOINT);
+        String responseBody = this.getWeatherResponseBody(URI_ENDPOINT);
+        return this.getWeather(responseBody);
     }
 
-    // TODO: decouple a bit more?
-    private String getWeather(String endpoint) {
+    private String getWeatherResponseBody(String endpoint) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .headers("Accept", "application/json")
                 .build();
         try {
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-            String kelvinTemp = new JSONObject(response.body()).getJSONObject("main").get("temp").toString();
+            return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
+        } catch (IOException | InterruptedException e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR.toString();
+        }
+    }
+
+    private String getWeather(String responseBody) {
+        try {
+            String kelvinTemp = new JSONObject(responseBody).getJSONObject("main").get("temp").toString();
             double celsiusTemp = Double.parseDouble(kelvinTemp) + KELVIN_TO_CELSIUS;
             return String.format("%.2f", celsiusTemp);
-        } catch (IOException | InterruptedException | JSONException e) {
+        } catch (JSONException e) {
             return HttpStatus.INTERNAL_SERVER_ERROR.toString();
         }
     }
