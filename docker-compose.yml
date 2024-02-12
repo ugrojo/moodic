@@ -1,27 +1,17 @@
 version: '2'
 services:
     moodic-server:
-        depends_on:
-            - mongodb
         container_name: moodic-server
         build:
             context: ./
             dockerfile: Dockerfile
         image: moodic-server:latest
+        volumes:
+            - $HOME/.aws/credentials:/home/app/.aws/credentials:ro
         ports:
             - 8080:8080
         networks:
             - spring-cloud-network
-    mongodb:
-        image: mongo:6-jammy
-        ports:
-            - '27017:27017'
-        volumes:
-            - dbdata6:/data/db
-        networks:
-            - spring-cloud-network
-volumes:
-    dbdata6:
 networks:
     spring-cloud-network:
         driver: bridge

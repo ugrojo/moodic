@@ -15,6 +15,7 @@ public class APIController {
     @Autowired
     MoodicControlPlane controlPlane;
 
+    // API for getting a list of songs depending on the city's temperature.
     @GetMapping("/api/v1/songs")
     public ResponseEntity<String[]> getSongs(@RequestParam(value="city", defaultValue = "zapopan") String city) {
         return ResponseEntity
