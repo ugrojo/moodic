@@ -7,12 +7,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 public class SpotifyMusicAPI implements MusicAPI {
 
     private static final String RECOMMENDATIONS_ENDPOINT = "https://api.spotify.com/v1/recommendations";
