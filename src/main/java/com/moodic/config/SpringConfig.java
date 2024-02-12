@@ -4,6 +4,8 @@ import com.moodic.db.MoodicRequestRepository;
 import com.moodic.moodic.MoodicControlPlane;
 import com.moodic.music.MusicAPI;
 import com.moodic.music.SpotifyMusicAPI;
+import com.moodic.music.SpotifyMusicAPIClient;
+import com.moodic.utils.SimpleCache;
 import com.moodic.weather.OpenWeatherAPI;
 import com.moodic.weather.OpenWeatherAPIClient;
 import com.moodic.weather.WeatherAPI;
@@ -59,4 +61,13 @@ public class SpringConfig {
         return new OpenWeatherAPIClient();
     }
 
+    @Bean
+    public SpotifyMusicAPIClient getSpotifyMusicAPIClient() {
+        return new SpotifyMusicAPIClient();
+    }
+
+    @Bean
+    public SimpleCache getSimpleCache() {
+        return new SimpleCache();
+    }
 }
